@@ -33,7 +33,7 @@ import StudentMaterials from "./pages/student/Materials";
 function HomeRedirect() {
   const { user, role, loading } = useAuth();
   if (loading) return <Spinner className="h-screen" />;
-  return user ? <Navigate to={`/${role}`} replace /> : <Landing />;
+  return user ? <Navigate to={`/${role}`} replace /> : <Login />;
 }
 
 export default function App() {
@@ -41,6 +41,7 @@ export default function App() {
     <Routes>
       <Route path="/" element={<HomeRedirect />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/home" element={<Landing />} />
 
       <Route element={<ProtectedRoute allow={["admin"]} />}>
         <Route path="/admin" element={<AppLayout />}>

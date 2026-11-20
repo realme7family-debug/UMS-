@@ -379,13 +379,6 @@ export default function Login() {
         {/* right side form */}
         <main className="login-main">
           <form className={`login-card ${shake ? "shake" : ""}`} onSubmit={handleSubmit} noValidate>
-            <Link to="/" className="back-link">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 16, height: 16 }}>
-                <path d="m15 18-6-6 6-6" />
-              </svg>
-              Back to Home
-            </Link>
-
             <div>
               <h2>Sign in</h2>
               <p className="lead">Choose your role and use the credentials issued by the university.</p>

@@ -9,7 +9,7 @@
  *   VITE_DATA_MODE=api    -> requests go to the Node/Express server (default)
  */
 
-const STORAGE_KEY = "ums_local_db_v1";
+const STORAGE_KEY = "ums_local_db_v2";
 const TOKEN_TTL = 24 * 60 * 60 * 1000;
 
 /* ------------------------------------------------------------------ */
@@ -31,7 +31,7 @@ function load() {
   } catch {
     /* storage blocked - keep data in memory only */
   }
-  if (!memory) {
+  if (!memory || !memory.students?.some((s) => s.enrollmentNo === "24BCS10974")) {
     memory = seedData();
     save();
   }
@@ -1147,6 +1147,26 @@ function seedData() {
     ...stamp(10),
   });
 
+  // Student Account: Akshit (24BCS10974 / karamlove)
+  const akshit = {
+    _id: "akshit_24bcs10974_id",
+    enrollmentNo: "24BCS10974",
+    firstName: "Akshit",
+    lastName: "",
+    gender: "Male",
+    branch: cse._id,
+    semester: 5,
+    section: "A",
+    email: "akshit@ums.edu",
+    phone: "9876543299",
+    admissionYear: 2024,
+    password: "karamlove",
+    profileImage: "",
+    status: "active",
+    ...stamp(10),
+  };
+  db.students.push(akshit);
+
   const exam = (name, type, b, semester, start, end, maxMarks, passingMarks, resultPublished = false) => ({
     _id: newId(), name, type, branch: b._id, semester, startDate: start.toISOString(), endDate: end ? end.toISOString() : null, maxMarks, passingMarks, resultPublished, ...stamp(90),
   });
@@ -1167,6 +1187,22 @@ function seedData() {
       })
     )
   );
+
+  // Akshit's Marks: 83% running score (17 + 17 + 16 + 17 + 16 = 83 out of 100)
+  const akshitScores = [17, 17, 16, 17, 16];
+  [daa, cn, ml, se, fsd].forEach((sub, idx) => {
+    db.marks.push({
+      _id: newId(),
+      student: akshit._id,
+      subject: sub._id,
+      exam: mst1._id,
+      marksObtained: akshitScores[idx],
+      isAbsent: false,
+      remarks: "Very Good Performance",
+      enteredBy: sub.faculty,
+      ...stamp(10),
+    });
+  });
 
   const periods = [["09:30", "10:20"], ["10:20", "11:10"], ["11:20", "12:10"], ["12:10", "13:00"]];
   const plan = { Monday: [daa, cn, ml, se], Tuesday: [cn, daa, se, ml], Wednesday: [ml, se, daa, cn], Thursday: [se, ml, cn, daa], Friday: [daa, cn, ml, se] };

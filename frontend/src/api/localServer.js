@@ -9,7 +9,7 @@
  *   VITE_DATA_MODE=api    -> requests go to the Node/Express server (default)
  */
 
-const STORAGE_KEY = "ums_local_db_v2";
+const STORAGE_KEY = "ums_local_db_v5";
 const TOKEN_TTL = 24 * 60 * 60 * 1000;
 
 /* ------------------------------------------------------------------ */
@@ -31,7 +31,7 @@ function load() {
   } catch {
     /* storage blocked - keep data in memory only */
   }
-  if (!memory || !memory.students?.some((s) => s.enrollmentNo === "24BCS10974")) {
+  if (!memory || memory.students?.length !== 260 || memory.faculty?.length !== 60) {
     memory = seedData();
     save();
   }
@@ -1044,6 +1044,49 @@ function seedData() {
     ...stamp(180),
   }));
   db.faculty.push(...fac);
+
+  // Fill up to EXACTLY 60 faculty members
+  const extraFaculty = [
+    ["Suresh", "Verma", "Male", cse], ["Deepak", "Kumar", "Male", cse], ["Sunita", "Bansal", "Female", cse],
+    ["Kavita", "Joshi", "Female", cse], ["Pooja", "Aggarwal", "Female", cse], ["Amit", "Singh", "Male", cse],
+    ["Meenakshi", "Saxena", "Female", cse], ["Sanjay", "Mishra", "Male", cse], ["Ritu", "Dubey", "Female", cse],
+    ["Manoj", "Tiwari", "Male", cse], ["Divya", "Pandey", "Female", cse], ["Alok", "Yadav", "Male", cse],
+    ["Swati", "Rao", "Female", cse], ["Pankaj", "Reddy", "Male", cse], ["Shweta", "Nair", "Female", cse],
+    ["Rohit", "Chawla", "Male", cse], ["Preeti", "Ahuja", "Female", cse], ["Vikas", "Sethi", "Male", cse],
+    ["Sneha", "Kapoor", "Female", ece], ["Gaurav", "Khanna", "Male", ece], ["Aarti", "Bhardwaj", "Female", ece],
+    ["Naveen", "Chaudhary", "Male", ece], ["Rashmi", "Chopra", "Female", ece], ["Varun", "Deshmukh", "Male", ece],
+    ["Shalini", "Garg", "Female", ece], ["Manish", "Goel", "Male", ece], ["Anjali", "Jain", "Female", ece],
+    ["Sandeep", "Jindal", "Male", ece], ["Tanu", "Mahajan", "Female", ece], ["Ashish", "Mathur", "Male", ece],
+    ["Pallavi", "Mittal", "Female", ece], ["Nitin", "Nagpal", "Male", ece], ["Monika", "Narang", "Female", me],
+    ["Pradeep", "Rawat", "Male", me], ["Vandana", "Saini", "Female", me], ["Sunil", "Shukla", "Male", me],
+    ["Richa", "Soni", "Female", me], ["Ajay", "Patel", "Male", me], ["Jyoti", "Verma", "Female", me],
+    ["Sachin", "Malhotra", "Male", me], ["Shruti", "Mehta", "Female", me], ["Vijay", "Kaur", "Male", me],
+    ["Anita", "Thakur", "Female", ce], ["Tarun", "Bansal", "Male", ce], ["Komal", "Joshi", "Female", ce],
+    ["Mohit", "Aggarwal", "Male", ce], ["Renu", "Bhatia", "Female", ce], ["Chetan", "Saxena", "Male", ce],
+    ["Sonam", "Mishra", "Female", ce], ["Rahul", "Dubey", "Male", ce], ["Dimple", "Tiwari", "Female", ce],
+    ["Vishal", "Pandey", "Male", ce], ["Garima", "Yadav", "Female", ce], ["Mayank", "Rao", "Male", ce]
+  ];
+  extraFaculty.forEach(([fn, ln, gen, dept], idx) => {
+    db.faculty.push({
+      _id: newId(),
+      employeeId: `E100${String(7 + idx).padStart(2, "0")}`,
+      firstName: fn,
+      lastName: ln,
+      gender: gen,
+      designation: idx % 3 === 0 ? "Associate Professor" : "Assistant Professor",
+      qualification: "M.Tech / Ph.D.",
+      experience: 5 + (idx % 12),
+      department: dept._id,
+      email: `${fn}.${ln}@ums.edu`.toLowerCase(),
+      phone: `98140${between(10000, 99999)}`,
+      joiningDate: new Date(2020 - (idx % 6), 6, 15).toISOString(),
+      address: "Mohali, Punjab",
+      password: "faculty123",
+      profileImage: "",
+      status: "active",
+      ...stamp(180),
+    });
+  });
   const [ramesh, priya, arjun, neha, harpreet, vikram] = fac;
   cse.hod = ramesh._id;
   ece.hod = harpreet._id;
@@ -1065,89 +1108,10 @@ function seedData() {
   db.subjects.push(...subs);
   const [daa, cn, ml, se, fsd] = subs;
 
-  const names = [
-    ["Aman", "Verma", "Male"], ["Simran", "Kaur", "Female"], ["Rohit", "Yadav", "Male"], ["Ananya", "Mishra", "Female"],
-    ["Karan", "Chauhan", "Male"], ["Ishita", "Arora", "Female"], ["Mohit", "Saini", "Male"], ["Pooja", "Rana", "Female"],
-    ["Harsh", "Pandey", "Male"], ["Tanya", "Bhatia", "Female"], ["Yash", "Tiwari", "Male"], ["Riya", "Sood", "Female"],
-    ["Abhishek", "Rawat", "Male"], ["Muskan", "Jindal", "Female"],
-  ];
   const bloodGroups = ["B+", "O+", "A+", "AB+", "O-", "B-"];
-  const guardians = ["Suresh", "Mahesh", "Rakesh", "Dinesh", "Naresh", "Rajesh", "Mukesh"];
   const towns = ["Mohali, Punjab", "Kharar, Punjab", "Ambala, Haryana", "Ludhiana, Punjab", "Shimla, H.P."];
 
-  const cseStudents = names.map(([firstName, lastName, gender], i) => {
-    const enrollmentNo = `24BCS10${101 + i}`;
-    return {
-      _id: newId(),
-      enrollmentNo,
-      firstName,
-      lastName,
-      gender,
-      email: `${enrollmentNo.toLowerCase()}@cuchd.in`,
-      phone: `7${between(100000000, 999999999)}`,
-      dob: new Date(2005, between(0, 11), between(1, 28)).toISOString(),
-      bloodGroup: bloodGroups[i % bloodGroups.length],
-      branch: cse._id,
-      semester: 5,
-      section: i < 8 ? "A" : "B",
-      admissionYear: 2024,
-      guardianName: `${guardians[i % guardians.length]} ${lastName}`,
-      guardianPhone: `94170${between(10000, 99999)}`,
-      address: towns[i % towns.length],
-      password: "student123",
-      profileImage: "",
-      status: "active",
-      ...stamp(5, (names.length - i) * 7),
-    };
-  });
-  db.students.push(...cseStudents);
-
-  [
-    ["24BEC10211", "Gurpreet", "Singh", "Male", ece, 5],
-    ["24BEC10214", "Nidhi", "Sharma", "Female", ece, 5],
-    ["25BME10305", "Rahul", "Negi", "Male", me, 3],
-    ["25BME10318", "Sakshi", "Dhiman", "Female", me, 3],
-    ["25BCE10402", "Deepak", "Kumar", "Male", ce, 3],
-  ].forEach(([enrollmentNo, firstName, lastName, gender, b, semester], i) =>
-    db.students.push({
-      _id: newId(),
-      enrollmentNo,
-      firstName,
-      lastName,
-      gender,
-      branch: b._id,
-      semester,
-      section: "A",
-      email: `${enrollmentNo.toLowerCase()}@cuchd.in`,
-      phone: `8${between(100000000, 999999999)}`,
-      admissionYear: Number(`20${enrollmentNo.slice(0, 2)}`),
-      password: "student123",
-      profileImage: "",
-      status: "active",
-      ...stamp(20, i * 11),
-    })
-  );
-
-  // User Student Account: 24BCS10116
-  db.students.push({
-    _id: newId(),
-    enrollmentNo: "24BCS10116",
-    firstName: "Nikhil",
-    lastName: "Singh",
-    gender: "Male",
-    branch: cse._id,
-    semester: 5,
-    section: "A",
-    email: "nikhil.singh@ums.edu",
-    phone: "9876543210",
-    admissionYear: 2024,
-    password: "Nikhil@28",
-    profileImage: "",
-    status: "active",
-    ...stamp(10),
-  });
-
-  // Student Account: Akshit (24BCS10974 / karamlove)
+  // 1. Akshit (24BCS10974 / karamlove - 83% marks)
   const akshit = {
     _id: "akshit_24bcs10974_id",
     enrollmentNo: "24BCS10974",
@@ -1166,6 +1130,86 @@ function seedData() {
     ...stamp(10),
   };
   db.students.push(akshit);
+
+  // 2. Nikhil Singh (24BCS10116 / Nikhil@28)
+  db.students.push({
+    _id: "nikhil_24bcs10116_id",
+    enrollmentNo: "24BCS10116",
+    firstName: "Nikhil",
+    lastName: "Singh",
+    gender: "Male",
+    branch: cse._id,
+    semester: 5,
+    section: "A",
+    email: "nikhil.singh@ums.edu",
+    phone: "9876543210",
+    admissionYear: 2024,
+    password: "Nikhil@28",
+    profileImage: "",
+    status: "active",
+    ...stamp(10),
+  });
+
+  // 3. Aarav Sharma (24BCS10101 / student123)
+  const cseStudents = [];
+  const aarav = {
+    _id: "aarav_24bcs10101_id",
+    enrollmentNo: "24BCS10101",
+    firstName: "Aarav",
+    lastName: "Sharma",
+    gender: "Male",
+    branch: cse._id,
+    semester: 5,
+    section: "A",
+    email: "aarav.sharma@ums.edu",
+    phone: "9876543211",
+    admissionYear: 2024,
+    password: "student123",
+    profileImage: "",
+    status: "active",
+    ...stamp(10),
+  };
+  db.students.push(aarav);
+  cseStudents.push(aarav);
+
+  // Remaining 257 students -> EXACTLY 260 TOTAL
+  const firstNamesM = ["Aman", "Rohit", "Karan", "Mohit", "Harsh", "Yash", "Abhishek", "Rahul", "Aditya", "Dev", "Alok", "Sameer", "Varun", "Vikas"];
+  const firstNamesF = ["Simran", "Ananya", "Ishita", "Pooja", "Tanya", "Riya", "Muskan", "Nidhi", "Sakshi", "Preeti", "Sneha", "Kavita", "Swati"];
+  const lastNamesList = ["Verma", "Kaur", "Yadav", "Mishra", "Chauhan", "Arora", "Saini", "Rana", "Pandey", "Bhatia", "Tiwari", "Sood", "Rawat", "Jindal", "Kumar", "Singh", "Gupta", "Sharma"];
+
+  const targetCount = 260 - db.students.length;
+  for (let s = 1; s <= targetCount; s++) {
+    const isM = s % 2 !== 0;
+    const fn = isM ? firstNamesM[s % firstNamesM.length] : firstNamesF[s % firstNamesF.length];
+    const ln = lastNamesList[s % lastNamesList.length];
+    const b = s <= 115 ? cse : s <= 170 ? ece : s <= 215 ? me : ce;
+    const prefix = b.code === "CSE" ? "24BCS" : b.code === "ECE" ? "24ECE" : b.code === "ME" ? "24BME" : "24BCE";
+    const rollNo = `${prefix}${String(10120 + s)}`;
+    const sem = ((s - 1) % 8) + 1;
+    const sec = ["A", "B", "C"][s % 3];
+    const sDoc = {
+      _id: newId(),
+      enrollmentNo: rollNo,
+      firstName: fn,
+      lastName: ln,
+      gender: isM ? "Male" : "Female",
+      branch: b._id,
+      semester: sem,
+      section: sec,
+      email: `${rollNo.toLowerCase()}@cuchd.in`,
+      phone: `8${between(100000000, 999999999)}`,
+      admissionYear: 2024 - Math.floor((sem - 1) / 2),
+      guardianName: `${firstNamesM[(s * 3) % firstNamesM.length]} ${ln}`,
+      guardianPhone: `94170${between(10000, 99999)}`,
+      address: towns[s % towns.length],
+      password: "student123",
+      profileImage: "",
+      status: "active",
+      ...stamp(20, s * 5),
+    };
+    db.students.push(sDoc);
+    if (b.code === "CSE") cseStudents.push(sDoc);
+  }
 
   const exam = (name, type, b, semester, start, end, maxMarks, passingMarks, resultPublished = false) => ({
     _id: newId(), name, type, branch: b._id, semester, startDate: start.toISOString(), endDate: end ? end.toISOString() : null, maxMarks, passingMarks, resultPublished, ...stamp(90),

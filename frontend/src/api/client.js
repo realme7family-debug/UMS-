@@ -4,9 +4,19 @@ import { storage } from "../utils/storage";
 
 export const SERVER_URL = import.meta.env.VITE_SERVER_URL || "";
 
-// "api"   -> talk to the Express server (default)
-// "local" -> run the API inside the browser, data kept in localStorage
-export const DATA_MODE = import.meta.env.VITE_DATA_MODE === "local" ? "local" : "api";
+// Check if running on localhost or deployed remotely (e.g. on Vercel)
+const isLocalhost =
+  typeof window !== "undefined" &&
+  (window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1" ||
+    window.location.hostname === "");
+
+// "api"   -> talk to the Express server (when on localhost with local backend)
+// "local" -> run the full API inside the browser via localStorage (default when deployed on Vercel without external backend)
+export const DATA_MODE =
+  import.meta.env.VITE_DATA_MODE === "local" || (!isLocalhost && !SERVER_URL)
+    ? "local"
+    : (import.meta.env.VITE_DATA_MODE || "api");
 
 const api = axios.create({
   baseURL: `${SERVER_URL}/api`,

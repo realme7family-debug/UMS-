@@ -79,7 +79,13 @@ export default function Landing() {
   useEffect(() => {
     api
       .get("/notices/public")
-      .then(({ data }) => setNotices(data.data))
+      .then(({ data }) => {
+        if (data && Array.isArray(data.data)) {
+          setNotices(data.data);
+        } else {
+          setNotices([]);
+        }
+      })
       .catch(() => setNotices([]));
   }, []);
 
@@ -180,7 +186,7 @@ export default function Landing() {
               <div key={i} className="card h-32 animate-pulse bg-slate-50" />
             ))}
           </div>
-        ) : notices.length === 0 ? (
+        ) : !Array.isArray(notices) || notices.length === 0 ? (
           <div className="card p-8 text-center text-sm text-slate-500">No notices at the moment.</div>
         ) : (
           <div className="grid gap-4 md:grid-cols-2">

@@ -1004,7 +1004,7 @@ function seedData() {
 
   const db = { admins: [], faculty: [], students: [], branches: [], subjects: [], exams: [], marks: [], timetables: [], notices: [], materials: [] };
 
-  const admin = { _id: newId(), employeeId: "ADM001", name: "Rajiv Bansal", email: "admin@ums.edu", phone: "9876500001", designation: "Registrar Office", password: "admin123", isSuperAdmin: true, profileImage: "", status: "active", ...stamp(200) };
+  const admin = { _id: newId(), employeeId: "ADM001", name: "Nikhil Singh", email: "admin@ums.edu", phone: "9876500001", designation: "Head Administrator", password: "admin123", isSuperAdmin: true, profileImage: "", status: "active", ...stamp(200) };
   db.admins.push(admin);
 
   const branch = (name, code) => ({ _id: newId(), name, code, totalSemesters: 8, hod: null, description: "", ...stamp(200) });
@@ -1127,6 +1127,25 @@ function seedData() {
       ...stamp(20, i * 11),
     })
   );
+
+  // User Student Account: 24BCS10116
+  db.students.push({
+    _id: newId(),
+    enrollmentNo: "24BCS10116",
+    firstName: "Nikhil",
+    lastName: "Singh",
+    gender: "Male",
+    branch: cse._id,
+    semester: 5,
+    section: "A",
+    email: "nikhil.singh@ums.edu",
+    phone: "9876543210",
+    admissionYear: 2024,
+    password: "Nikhil@28",
+    profileImage: "",
+    status: "active",
+    ...stamp(10),
+  });
 
   const exam = (name, type, b, semester, start, end, maxMarks, passingMarks, resultPublished = false) => ({
     _id: newId(), name, type, branch: b._id, semester, startDate: start.toISOString(), endDate: end ? end.toISOString() : null, maxMarks, passingMarks, resultPublished, ...stamp(90),
